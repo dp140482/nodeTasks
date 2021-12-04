@@ -3,9 +3,20 @@ const colors = require('colors');
 
 const [a, b] = process.argv.slice(2);
 console.log(`Простые числа от ${a} до ${b}:`);
+
 let ibeg = parseInt(a);
+if (Number.isNaN(ibeg) || ibeg < 0) {
+    console.error("Ошибка в параметрах: параметры должны быть натуральными числами.");
+    return 1;
+}
 if (+a > ibeg) ibeg++;
+
 const iend = parseInt(b);
+if (Number.isNaN(iend) || iend < 0) {
+    console.error("Ошибка в параметрах: параметры должны быть натуральными числами.");
+    return 1;
+}
+
 let counter = 0;
 
 for (let i = ibeg; i < iend; i++) {
@@ -20,4 +31,4 @@ for (let i = ibeg; i < iend; i++) {
         counter++;
     }
 }
-if (counter === 0) console.log(`нет простых чисел.`);
+if (counter === 0) console.log(colors.brightRed("нет простых чисел."));
