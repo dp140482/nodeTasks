@@ -9,6 +9,8 @@
 <body>
     <input type="text" id="input" autofocus>
     <input type="submit" id="send" value="Send">
+    <button onclick="socket.disconnect();">Disconnect</button>
+    Users: <span id="counter">1</span>
     <div id="messages"></div>
 
     <script type="text/javascript">
@@ -23,17 +25,31 @@
         socket.on('connect', () => {
             console.log('Successful connected to server');
         });
+
+        socket.on('disconnect', () => {
+            console.log('Disconnected from server');
+            let counter = document.getElementById('counter');
+            counter.textContent = +counter.textContent - 1;
+        });
     
         socket.on('SERVER_MSG', data => {
             addMessage(data.msg);
         });
 
         socket.on('NEW_CONN_EVENT', data => {
-            addMessage('From server: ' + data.msg);
+            addMessage(data.msg);
+            document.getElementById('counter').textContent = data.count;
+        });
+
+        socket.on('DISCONN_EVENT', data => {
+            addMessage(data.msg);
+            document.getElementById('counter').textContent = data.count;
         });
     
         document.getElementById('send').onclick = () => {
-            socket.emit('CLIENT_MSG', { msg: document.getElementById('input').value });
+            socket.emit('CLIENT_MSG', {
+                msg: document.getElementById('input').value
+            });
             document.getElementById('input').value = '';
         };
     </script>
