@@ -10,23 +10,28 @@ const showFileOrDir = (path, url) => {
             return { flag: "FILE", text: fs.readFileSync(path, "utf-8") };
         } else {
             const fileList = fs.readdirSync(path);
-            let textRes = "<html>\n<body>\n<ul>\n" + fileList.map(record => `<li>
-                    <a href="${join(url, record)}">${record}</a>
-                </li>`).join("\n") + "\n</ul>\n</body>\n</html>";
-            return { flag: "DIR", text: textRes};
+            let textRes = "<html>\n<body>\n<ul>\n";
+            textRes += fileList.map(record => {
+                const link = `<a href="${join(url, record)}">${record}</a>`;
+                return "<li>" + link + "</li>";
+            }).join("\n");
+            textRes += "\n</ul>\n</body>\n</html>";
+            return { flag: "DIR", text: textRes };
         }
     } else {
-        return { flag: "ENOENT", text: `File not found.
-        Type http://localhost:${port} for interactive browse from current folder.`};
+        return {
+            flag: "ENOENT", text: `File not found.
+        Type http://localhost:${port} for interactive browse from current folder.`
+        };
     }
 };
 
 const server = http.createServer((req, res) => {
-    const fsRes = showFileOrDir( join(path, req.url), req.url );
+    const fsRes = showFileOrDir(join(path, req.url), req.url);
     if (fsRes.flag === "ENOENT") {
         res.writeHead(404, "File not found");
     } else if (fsRes.flag === "DIR") {
-        res.writeHead(200, "OK", {"Content-Type": "text/html"});
+        res.writeHead(200, "OK", { "Content-Type": "text/html" });
     } else {
         res.writeHead(200, "OK");
     }
