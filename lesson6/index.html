@@ -1,0 +1,41 @@
+<html>
+
+<head>
+    <title>Socket App</title>
+    <script src="https://cdn.socket.io/3.1.1/socket.io.min.js"
+    integrity="sha384-gDaozqUvc4HTgo8iZjwth73C6dDDeOJsAgpxBcMpZYztUfjHXpzrpdrHRdVp8ySO" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <input type="text" id="input" autofocus>
+    <input type="submit" id="send" value="Send">
+    <div id="messages"></div>
+
+    <script type="text/javascript">
+        const socket = io('localhost:5555');
+    
+        const addMessage = msg => {
+            const msgSpan = document.createElement('span').innerHTML = msg;
+            document.getElementById('messages').append(msgSpan);
+            document.getElementById('messages').append(document.createElement('br'));
+        };
+    
+        socket.on('connect', () => {
+            console.log('Successful connected to server');
+        });
+    
+        socket.on('SERVER_MSG', data => {
+            addMessage(data.msg);
+        });
+
+        socket.on('NEW_CONN_EVENT', data => {
+            addMessage('From server: ' + data.msg);
+        });
+    
+        document.getElementById('send').onclick = () => {
+            socket.emit('CLIENT_MSG', { msg: document.getElementById('input').value });
+            document.getElementById('input').value = '';
+        };
+    </script>
+</body>
+</html>
