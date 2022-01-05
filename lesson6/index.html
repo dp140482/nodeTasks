@@ -1,0 +1,63 @@
+<html>
+
+<head>
+    <title>Socket App</title>
+    <script src="https://cdn.socket.io/3.1.1/socket.io.min.js"
+    integrity="sha384-gDaozqUvc4HTgo8iZjwth73C6dDDeOJsAgpxBcMpZYztUfjHXpzrpdrHRdVp8ySO" crossorigin="anonymous"></script>
+</head>
+
+<body style="font-family: 'Helvetica Neue', 'Calibri', 'Arial', sans-serif; font-size: 13pt;">
+    <input type="text" id="input" autofocus>
+    <input type="submit" id="send" value="Send">
+    <button onclick="socket.disconnect();">Disconnect</button><br>
+    Users: <span id="users"></span>
+    <div id="messages" style="margin: 20px;"></div>
+
+    <script type="text/javascript">
+        const name = prompt("Enter your name: ");
+        const socket = io('localhost:5555');
+    
+        const addMessage = msg => {
+            const msgSpan = document.createElement('span').innerHTML = msg;
+            document.getElementById('messages').append(msgSpan);
+            document.getElementById('messages').append(document.createElement('br'));
+        };
+    
+        socket.on('connect', () => {
+            addMessage('Successful connected to server');
+            socket.emit('NEW_USER', name);
+        });
+
+        socket.on('disconnect', () => {
+            addMessage('Disconnected from server');
+            document.getElementById('users').textContent = '';
+        });
+    
+        socket.on('SERVER_MSG', data => {
+            addMessage(data.msg);
+        });
+
+        socket.on('NEW_CONN_EVENT', data => {
+            addMessage(data.msg);
+            document.getElementById('users').textContent = data.users.join(', ');
+        });
+
+        socket.on('DISCONN_EVENT', data => {
+            addMessage(data.msg);
+            document.getElementById('users').textContent = data.users.join(', ');
+        });
+
+        socket.on('RECONN_EVENT', data => {
+            addMessage(data.msg);
+            document.getElementById('users').textContent = data.users.join(', ');
+        });
+    
+        document.getElementById('send').onclick = () => {
+            socket.emit('CLIENT_MSG', {
+                msg: document.getElementById('input').value
+            });
+            document.getElementById('input').value = '';
+        };
+    </script>
+</body>
+</html>
